@@ -59,7 +59,7 @@ jobs:
         # Matrix mode: find all devices sharing the same SoC + kernel_version
         SOC=$(echo "$DEVICE_JSON" | jq -r '.soc')
         KVER=$(echo "$DEVICE_JSON" | jq -r '.kernel_version')
-        DEVICES=$(jq -r --arg soc "$SOC" --arg kver "$KVER" \
+        DEVICES=$(jq -c --arg soc "$SOC" --arg kver "$KVER" \
           '[to_entries[] | select(.value.soc == $soc and .value.kernel_version == $kver) | {device: .key}]' \
           "$REGISTRY")
         echo "result=$DEVICES" >> "$GITHUB_OUTPUT"
