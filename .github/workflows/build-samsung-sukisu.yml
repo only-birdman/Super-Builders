@@ -360,7 +360,13 @@ jobs:
         else
           echo "No working prebuilt clang — installing system clang"
           sudo apt-get -qq install -y clang lld llvm >/dev/null 2>&1
-          export KCFLAGS="${KCFLAGS:+$KCFLAGS }-Wno-error"
+          REAL_CLANG=$(command -v clang)
+          printf '#!/bin/bash\nargs=()\nfor a in "$@"; do [[ "$a" == -Werror* ]] || args+=("$a"); done\nexec "%s" "${args[@]}"\n' "$REAL_CLANG" > /tmp/clang-no-werror
+          chmod +x /tmp/clang-no-werror
+          mkdir -p /tmp/clang-wrap
+          ln -sf /tmp/clang-no-werror /tmp/clang-wrap/clang
+          ln -sf /tmp/clang-no-werror /tmp/clang-wrap/clang++
+          export PATH="/tmp/clang-wrap:$PATH"
         fi
 
         # Apply LTO override if not default
